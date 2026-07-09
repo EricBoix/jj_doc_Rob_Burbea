@@ -1,0 +1,22 @@
+{
+    "cSpell.customDictionaries": {
+        "Burbea-meditation-on-emptiness-words": {
+            "name": "Burbea_meditation_on_emptiness",
+            "path": "${workspaceRoot}/Burbea_meditation_on_emptiness-words.txt",
+            "description": "Words used by Rob Burbea in his retreat on emptiness",
+            "addWords": true
+        },
+        "Burbea_meditation_on_emptiness": true
+    },
+    "[markdown]": {
+        "editor.wordWrap": "bounded",
+        "editor.wordWrapColumn": 80
+    },
+    "[python]": {
+      "editor.defaultFormatter": "ms-python.black-formatter",
+      "editor.formatOnSave": true
+    },
+    "python-envs.defaultEnvManager": "ms-python.python:venv",
+    "python-envs.workspaceSearchPaths": ["./**/venv", "./venv"],
+
+}
