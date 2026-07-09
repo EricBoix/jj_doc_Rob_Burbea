@@ -17,6 +17,13 @@
       "editor.formatOnSave": true
     },
     "python-envs.defaultEnvManager": "ms-python.python:venv",
-    "python-envs.workspaceSearchPaths": ["./**/venv", "./venv"],
+    "python-envs.workspaceSearchPaths": [
+        "./**/venv",
+        "./venv"
+    ],
+    "cSpell.words": [
+        "toplevel",
+        "venv"
+    ],
 
 }
