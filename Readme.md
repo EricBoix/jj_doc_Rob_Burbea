@@ -73,13 +73,13 @@ jj_neo4j_launch_db $RESULTS_DIR $NEO4J_PORT $NEO4J_USERNAME/$NEO4J_PASSWORD
 Run the (Knowledge Graph) extraction
 
 ```bash
-jj_extract_knowledge_graph `pwd`/original_data '--load_markdown_document 250_BCE_-_Dhammacakkappavattana_Sutta_Four_Noble_Truths_Wikipedia_translation.md' 
+jj_extract_knowledge_graph `pwd`/result_data '--load_markdown_document 2010_01_20_-_Rob_Burbea_-_Meditation_on_emptiness_Retreat_-_Opening_talk_Orienting_and_relating_to_the_emptiness_retreat_-_local_converter.md --load_json_document 2010_01_20_-_Rob_Burbea_-_Meditation_on_emptiness_Retreat_-_Opening_talk_Orienting_and_relating_to_the_emptiness_retreat_-_Sentences_as_LangChain_Document.json' 
 ```
 
 Dump the database content for later usage (optional)
 
 ```bash
-jj_neo4j_dump_database $RESULTS_DIR neo4j.Four-Noble-Truths-Wikipedia-translation.Markdown.dump
+jj_neo4j_dump_database $RESULTS_DIR neo4j.Rob-Burbea-Meditation-On-Emptiness-Opening-talk.MarkdownAndSentences.dump
 ```
 
 In order to validate the dump, erase the database and restore it (out of the
@@ -87,14 +87,14 @@ previous dump)...
 
 ```bash
 # WARNING: this DELETEs the existing database
-jj_neo4j_restore_database $RESULTS_DIR neo4j.Four-Noble-Truths-Wikipedia-translation.Markdown.dump
+jj_neo4j_restore_database $RESULTS_DIR neo4j.Rob-Burbea-Meditation-On-Emptiness-Opening-talk.MarkdownAndSentences.dump
 ```
 
 Extract knowledge graph in [Turtle](https://en.wikipedia.org/wiki/Turtle_(syntax)) format:
 
 ```bash
 jj_neo4j_launch_db $RESULTS_DIR $NEO4J_PORT $NEO4J_USERNAME/$NEO4J_PASSWORD
-jj_dump_knowledge_graph_in_turtle $RESULTS_DIR Four-Noble-Truths-Wikipedia-translation-Markdown.ttl
+jj_dump_knowledge_graph_in_turtle $RESULTS_DIR Rob-Burbea-Meditation-On-Emptiness-Opening-talk.MarkdownAndSentences.ttl
 ```
 
 Eventually turn the context off:
