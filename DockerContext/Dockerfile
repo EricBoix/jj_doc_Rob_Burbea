@@ -14,6 +14,6 @@ RUN set -ex && pip install -r requirements.txt
 # Systematically run tests at build time (fail often, fail early)
 RUN set -ex \
     && pip install -r requirements-dev.txt \
-    && pytest test_main.py
+    && pytest
 
 ENTRYPOINT ["python3", "./main.py"]
