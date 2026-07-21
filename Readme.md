@@ -31,7 +31,7 @@ python main.py
 ## Running the PDF conversion with docker
 
 ```bash
-docker build -t jejuneness:doc_Rob_Burbea https://github.com/EricBoix/jj_doc_Rob_Burbea.git#:DockerContext
+docker build -t jejuneness:doc_Rob_Burbea https://github.com/EricBoix/jejune_doc_Rob_Burbea.git#:DockerContext
 docker run --rm jejuneness:doc_Rob_Burbea --help
 ```
 
@@ -43,64 +43,60 @@ docker run --rm  -v `pwd`/junk:/output jejuneness:doc_Rob_Burbea --output_direct
 
 ## Running the full data workflow
 
-Fetch [jj_workflow_shell](https://github.com/EricBoix/jj_workflow_shell#fetch-the-workflow-utilities)
+Install and configure [`jejune_cli`](https://github.com/EricBoix/jejune_cli), then run `jejune doctor` to verify the configuration. This boils down to
 
 ```bash
-cd `git rev-parse --show-toplevel`         # Implicit from now on
-git clone https://github.com/EricBoix/jj_workflow_shell.git
-source jj_workflow_shell/init.bash
+uv tool install git+https://github.com/EricBoix/jejune_cli
+jejune configuration init     
+# Proceed with the configuration of the files located in .jejune/ dir
+echo "CONVERT_DOC_DIR=." >> .jejune/env-config
+jejune doctor
 ```
 
-and [configure it](https://github.com/EricBoix/jj_workflow_shell#configure-the-shell-utilities) by editing the resulting `.env` file.
-
-Define your target directories
+Define a convenience variable for the results directory:
 
 ```bash
-set +a                                     # For vscode command runner execution
-export RESULTS_DIR=`pwd`/result_data       # Syntactic sugar
-export DATABASE_DIR=$RESULTS_DIR/database
-\rm -fr $DATABASE_DIR                      # Clean slate from previous run
+export RESULTS_DIR=`pwd`/result_data
 ```
 
-Note: no need for `pdf` conversion since the original data is here in a markdown format.
-
-Prerequisite to Knowledge Graph (KG) extraction: launch a neo4j database
+Run the converter to sanitize original document:
 
 ```bash
-jj_neo4j_launch_db $RESULTS_DIR $NEO4J_PORT $NEO4J_USERNAME/$NEO4J_PASSWORD
+jejune convert run --output-dir $RESULTS_DIR
 ```
 
-Run the (Knowledge Graph) extraction
+Run the (Knowledge Graph) extraction (launching a clean slate neo4j database is a prerequisite)
 
 ```bash
-jj_extract_knowledge_graph `pwd`/result_data '--load_markdown_document 2010_01_20_-_Rob_Burbea_-_Meditation_on_emptiness_Retreat_-_Opening_talk_Orienting_and_relating_to_the_emptiness_retreat_-_local_converter.md --load_json_document 2010_01_20_-_Rob_Burbea_-_Meditation_on_emptiness_Retreat_-_Opening_talk_Orienting_and_relating_to_the_emptiness_retreat_-_Sentences_as_LangChain_Document.json' 
+jejune neo4j delete $RESULTS_DIR
+jejune neo4j stats --assert 0/0
+jejune graph extract $RESULTS_DIR \
+  --load_markdown_document \
+  2010_01_20_-_Rob_Burbea_-_Meditation_on_emptiness_Retreat_-_Opening_talk_Orienting_and_relating_to_the_emptiness_retreat_-_local_converter.md \
+  --load_json_document \
+  2010_01_20_-_Rob_Burbea_-_Meditation_on_emptiness_Retreat_-_Opening_talk_Orienting_and_relating_to_the_emptiness_retreat_-_Sentences_as_LangChain_Document.json
+jejune neo4j stats --assert 537/871
 ```
 
 Dump the database content for later usage (optional)
 
 ```bash
-jj_neo4j_dump_database $RESULTS_DIR neo4j.Rob-Burbea-Meditation-On-Emptiness-Opening-talk.MarkdownAndSentences.dump
+jejune neo4j stop
+jejune neo4j dump $RESULTS_DIR \
+  neo4j.Rob-Burbea-Meditation-On-Emptiness-Opening-talk.MarkdownAndSentences.dump
 ```
 
-In order to validate the dump, erase the database and restore it (out of the
-previous dump)...
+Extract knowledge graph in [Turtle](https://en.wikipedia.org/wiki/Turtle_(syntax)) format (initial restoration validates the previous dump):
 
 ```bash
-# WARNING: this DELETEs the existing database
-jj_neo4j_restore_database $RESULTS_DIR neo4j.Rob-Burbea-Meditation-On-Emptiness-Opening-talk.MarkdownAndSentences.dump
-```
-
-Extract knowledge graph in [Turtle](https://en.wikipedia.org/wiki/Turtle_(syntax)) format:
-
-```bash
-jj_neo4j_launch_db $RESULTS_DIR $NEO4J_PORT $NEO4J_USERNAME/$NEO4J_PASSWORD
-jj_dump_knowledge_graph_in_turtle $RESULTS_DIR Rob-Burbea-Meditation-On-Emptiness-Opening-talk.MarkdownAndSentences.ttl
-```
-
-Eventually turn the context off:
-
-```bash
-jj_neo4j_stop_db
+# WARNING: restoring DELETEs the existing database
+jejune neo4j restore $RESULTS_DIR \
+  neo4j.Rob-Burbea-Meditation-On-Emptiness-Opening-talk.MarkdownAndSentences.dump
+jejune neo4j start $RESULTS_DIR
+jejune neo4j stats --assert 537/871.  # Just making sure
+jejune neo4j dump-turtle $RESULTS_DIR \
+  Rob-Burbea-Meditation-On-Emptiness-Opening-talk.MarkdownAndSentences.ttl
+jejune neo4j stop
 ```
 
 ## TODO
